@@ -1,0 +1,223 @@
+
+<h2 class="sr-only">Shivanna Sales Dashboard — confirmed from official booking files, leads from sales report, prev/same year split</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.top{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.875rem;}
+.yl{font-size:12px;color:var(--color-text-secondary);white-space:nowrap;}
+.btn{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 12px;font-size:12px;cursor:pointer;background:transparent;color:var(--color-text-secondary);}
+.btn.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary);}
+.em-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.125rem;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:7px;margin-bottom:1rem;}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;}
+.card .lb{font-size:10px;color:var(--color-text-secondary);margin-bottom:2px;line-height:1.3;}
+.card .vl{font-size:18px;font-weight:500;color:var(--color-text-primary);}
+.card .sb{font-size:10px;color:var(--color-text-tertiary);margin-top:1px;}
+.yr-split{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1rem;}
+.ys{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;border-left:3px solid;}
+.ys.prev{border-color:#BA7517;}
+.ys.same{border-color:#185FA5;}
+.ys .lb{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px;}
+.ys .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+.ys .num{font-size:16px;font-weight:500;color:var(--color-text-primary);}
+.ys .sub{font-size:10px;color:var(--color-text-tertiary);}
+.cw{position:relative;width:100%;height:230px;margin-bottom:.75rem;}
+.leg{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--color-text-secondary);margin-bottom:.875rem;}
+.ls{display:flex;align-items:center;gap:3px;}
+.lsq{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead tr{border-bottom:1px solid var(--color-border-secondary);}
+th{padding:5px 8px;text-align:left;font-weight:500;color:var(--color-text-secondary);font-size:10px;white-space:nowrap;}
+td{padding:5px 8px;color:var(--color-text-primary);border-bottom:0.5px solid var(--color-border-tertiary);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+.tr{font-weight:500;border-top:1px solid var(--color-border-secondary);background:var(--color-background-secondary);}
+.green{color:#1D9E75;font-weight:500;}
+.dim{color:var(--color-text-tertiary);}
+.pill{display:inline-block;padding:1px 5px;border-radius:8px;font-size:9px;font-weight:500;}
+.py{background:#FAEEDA;color:#633806;}
+.sy{background:#E6F1FB;color:#0C447C;}
+.ny{background:#EAF3DE;color:#27500A;}
+.div{height:0.5px;background:var(--color-border-tertiary);margin:.875rem 0;}
+</style>
+
+<div style="padding:.625rem 0">
+<div class="top">
+  <span class="yl">Event year:</span>
+  <button class="btn on" onclick="setY(2025,this)">2025 events</button>
+  <button class="btn" onclick="setY(2026,this)">2026 events</button>
+</div>
+<div class="top" style="margin-bottom:.5rem;"><span class="yl">Event month:</span></div>
+<div class="em-row" id="em-btns"></div>
+
+<!-- summary cards -->
+<div class="cards" id="s-cards"></div>
+
+<!-- prev/same year split -->
+<div class="yr-split" id="yr-split"></div>
+
+<!-- LEADS CHART -->
+<p style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:.4rem;">Leads by inquiry month</p>
+<div class="cw"><canvas id="leads-chart" role="img" aria-label="Leads per inquiry month split direct and non-direct"></canvas></div>
+<div class="leg">
+  <span class="ls"><span class="lsq" style="background:#BA7517"></span>Direct – prev yr</span>
+  <span class="ls"><span class="lsq" style="background:#EF9F27;opacity:.55"></span>Non-direct – prev yr</span>
+  <span class="ls"><span class="lsq" style="background:#185FA5"></span>Direct – same yr</span>
+  <span class="ls"><span class="lsq" style="background:#378ADD;opacity:.55"></span>Non-direct – same yr</span>
+  <span class="ls"><span class="lsq" style="background:#1D9E75;opacity:.4"></span>Next yr</span>
+</div>
+
+<div class="div"></div>
+
+<!-- CONFIRMED CHART -->
+<p style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:.4rem;">Confirmed bookings by booking month <span style="font-size:10px;font-weight:400;">(from official booking file)</span></p>
+<div class="cw"><canvas id="conf-chart" role="img" aria-label="Confirmed bookings per booking month direct and non-direct"></canvas></div>
+<div class="leg">
+  <span class="ls"><span class="lsq" style="background:#185FA5"></span>Direct – confirmed</span>
+  <span class="ls"><span class="lsq" style="background:#378ADD;opacity:.55"></span>Non-direct – confirmed</span>
+</div>
+
+<div class="div"></div>
+
+<!-- TABLE -->
+<p style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:.5rem;">Detail table</p>
+<div class="tbl-wrap">
+<table>
+  <thead><tr>
+    <th>Inquiry / Booking month</th><th>Year tag</th>
+    <th>Direct leads</th><th>ND leads</th><th>Total leads</th>
+    <th>Direct conf</th><th>ND conf</th><th>Total conf</th>
+  </tr></thead>
+  <tbody id="tbl-body"></tbody>
+</table>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const GC='rgba(128,128,128,0.12)',TX='#888';
+
+const D={"2025":{"Jan":{"leads_total":50,"leads_direct":23,"leads_nondirect":27,"prev_yr_leads":40,"prev_yr_d":18,"prev_yr_nd":22,"same_yr_leads":10,"same_yr_d":5,"same_yr_nd":5,"next_yr_leads":0,"conf_total":0,"conf_direct":0,"conf_nondirect":0,"inq_leads":{"Jul 24":{"total":1,"direct":0,"nondirect":1},"Aug 24":{"total":6,"direct":3,"nondirect":3},"Sep 24":{"total":2,"direct":1,"nondirect":1},"Oct 24":{"total":6,"direct":3,"nondirect":3},"Nov 24":{"total":10,"direct":3,"nondirect":7},"Dec 24":{"total":15,"direct":8,"nondirect":7},"Jan 25":{"total":9,"direct":4,"nondirect":5},"Apr 25":{"total":1,"direct":1,"nondirect":0}},"inq_conf":{}},"Feb":{"leads_total":48,"leads_direct":23,"leads_nondirect":25,"prev_yr_leads":19,"prev_yr_d":10,"prev_yr_nd":9,"same_yr_leads":29,"same_yr_d":13,"same_yr_nd":16,"next_yr_leads":0,"conf_total":5,"conf_direct":0,"conf_nondirect":5,"inq_leads":{"Jul 24":{"total":1,"direct":1,"nondirect":0},"Aug 24":{"total":1,"direct":1,"nondirect":0},"Sep 24":{"total":1,"direct":0,"nondirect":1},"Oct 24":{"total":3,"direct":2,"nondirect":1},"Nov 24":{"total":6,"direct":4,"nondirect":2},"Dec 24":{"total":7,"direct":2,"nondirect":5},"Jan 25":{"total":24,"direct":11,"nondirect":13},"Feb 25":{"total":5,"direct":2,"nondirect":3}},"inq_conf":{"Jan 25":{"total":3,"direct":0,"nondirect":3},"Feb 25":{"total":2,"direct":0,"nondirect":2}}},"Mar":{"leads_total":37,"leads_direct":18,"leads_nondirect":19,"prev_yr_leads":13,"prev_yr_d":7,"prev_yr_nd":6,"same_yr_leads":24,"same_yr_d":11,"same_yr_nd":13,"next_yr_leads":0,"conf_total":2,"conf_direct":1,"conf_nondirect":1,"inq_leads":{"Jun 24":{"total":3,"direct":0,"nondirect":3},"Jul 24":{"total":1,"direct":1,"nondirect":0},"Sep 24":{"total":2,"direct":1,"nondirect":1},"Oct 24":{"total":2,"direct":2,"nondirect":0},"Nov 24":{"total":2,"direct":2,"nondirect":0},"Dec 24":{"total":3,"direct":1,"nondirect":2},"Jan 25":{"total":11,"direct":8,"nondirect":3},"Feb 25":{"total":8,"direct":2,"nondirect":6},"Mar 25":{"total":4,"direct":1,"nondirect":3},"Apr 25":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{"Feb 25":{"total":1,"direct":0,"nondirect":1},"Dec 25":{"total":1,"direct":1,"nondirect":0}}},"Apr":{"leads_total":33,"leads_direct":18,"leads_nondirect":15,"prev_yr_leads":6,"prev_yr_d":3,"prev_yr_nd":3,"same_yr_leads":27,"same_yr_d":15,"same_yr_nd":12,"next_yr_leads":0,"conf_total":5,"conf_direct":3,"conf_nondirect":2,"inq_leads":{"Aug 24":{"total":1,"direct":1,"nondirect":0},"Sep 24":{"total":1,"direct":0,"nondirect":1},"Oct 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":3,"direct":1,"nondirect":2},"Jan 25":{"total":9,"direct":6,"nondirect":3},"Feb 25":{"total":6,"direct":1,"nondirect":5},"Mar 25":{"total":4,"direct":3,"nondirect":1},"Apr 25":{"total":7,"direct":4,"nondirect":3},"Aug 25":{"total":1,"direct":1,"nondirect":0}},"inq_conf":{"Jan 25":{"total":1,"direct":1,"nondirect":0},"Feb 25":{"total":1,"direct":0,"nondirect":1},"Mar 25":{"total":1,"direct":1,"nondirect":0},"Apr 25":{"total":2,"direct":1,"nondirect":1}}},"May":{"leads_total":61,"leads_direct":36,"leads_nondirect":25,"prev_yr_leads":11,"prev_yr_d":4,"prev_yr_nd":7,"same_yr_leads":50,"same_yr_d":32,"same_yr_nd":18,"next_yr_leads":0,"conf_total":4,"conf_direct":3,"conf_nondirect":1,"inq_leads":{"Jun 24":{"total":1,"direct":0,"nondirect":1},"Jul 24":{"total":1,"direct":0,"nondirect":1},"Aug 24":{"total":2,"direct":1,"nondirect":1},"Sep 24":{"total":2,"direct":0,"nondirect":2},"Oct 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":1,"direct":0,"nondirect":1},"Dec 24":{"total":3,"direct":2,"nondirect":1},"Jan 25":{"total":11,"direct":8,"nondirect":3},"Feb 25":{"total":5,"direct":4,"nondirect":1},"Mar 25":{"total":8,"direct":4,"nondirect":4},"Apr 25":{"total":15,"direct":9,"nondirect":6},"May 25":{"total":10,"direct":7,"nondirect":3},"Jun 25":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{"Mar 25":{"total":1,"direct":1,"nondirect":0},"Apr 25":{"total":3,"direct":2,"nondirect":1}}},"Jun":{"leads_total":51,"leads_direct":28,"leads_nondirect":23,"prev_yr_leads":7,"prev_yr_d":7,"prev_yr_nd":0,"same_yr_leads":44,"same_yr_d":21,"same_yr_nd":23,"next_yr_leads":0,"conf_total":5,"conf_direct":2,"conf_nondirect":3,"inq_leads":{"Jul 24":{"total":2,"direct":2,"nondirect":0},"Aug 24":{"total":1,"direct":1,"nondirect":0},"Oct 24":{"total":2,"direct":2,"nondirect":0},"Nov 24":{"total":1,"direct":1,"nondirect":0},"Dec 24":{"total":1,"direct":1,"nondirect":0},"Jan 25":{"total":10,"direct":6,"nondirect":4},"Feb 25":{"total":3,"direct":0,"nondirect":3},"Mar 25":{"total":5,"direct":4,"nondirect":1},"Apr 25":{"total":6,"direct":2,"nondirect":4},"May 25":{"total":11,"direct":4,"nondirect":7},"Jun 25":{"total":9,"direct":5,"nondirect":4}},"inq_conf":{"Jan 25":{"total":1,"direct":0,"nondirect":1},"May 25":{"total":2,"direct":1,"nondirect":1},"Jun 25":{"total":2,"direct":1,"nondirect":1}}},"Jul":{"leads_total":50,"leads_direct":25,"leads_nondirect":25,"prev_yr_leads":11,"prev_yr_d":6,"prev_yr_nd":5,"same_yr_leads":39,"same_yr_d":19,"same_yr_nd":20,"next_yr_leads":0,"conf_total":7,"conf_direct":5,"conf_nondirect":2,"inq_leads":{"Jul 24":{"total":1,"direct":1,"nondirect":0},"Aug 24":{"total":3,"direct":1,"nondirect":2},"Sep 24":{"total":3,"direct":3,"nondirect":0},"Oct 24":{"total":3,"direct":1,"nondirect":2},"Nov 24":{"total":1,"direct":0,"nondirect":1},"Jan 25":{"total":2,"direct":2,"nondirect":0},"Feb 25":{"total":5,"direct":2,"nondirect":3},"Mar 25":{"total":4,"direct":1,"nondirect":3},"Apr 25":{"total":3,"direct":3,"nondirect":0},"May 25":{"total":8,"direct":4,"nondirect":4},"Jun 25":{"total":11,"direct":3,"nondirect":8},"Jul 25":{"total":6,"direct":4,"nondirect":2}},"inq_conf":{"Unknown":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":3,"direct":2,"nondirect":1},"Jul 25":{"total":3,"direct":2,"nondirect":1}}},"Aug":{"leads_total":52,"leads_direct":25,"leads_nondirect":27,"prev_yr_leads":5,"prev_yr_d":2,"prev_yr_nd":3,"same_yr_leads":47,"same_yr_d":23,"same_yr_nd":24,"next_yr_leads":0,"conf_total":5,"conf_direct":3,"conf_nondirect":2,"inq_leads":{"Jun 24":{"total":1,"direct":1,"nondirect":0},"Aug 24":{"total":2,"direct":1,"nondirect":1},"Sep 24":{"total":1,"direct":0,"nondirect":1},"Dec 24":{"total":1,"direct":0,"nondirect":1},"Jan 25":{"total":8,"direct":5,"nondirect":3},"Feb 25":{"total":3,"direct":1,"nondirect":2},"Mar 25":{"total":1,"direct":1,"nondirect":0},"Apr 25":{"total":4,"direct":2,"nondirect":2},"May 25":{"total":7,"direct":2,"nondirect":5},"Jun 25":{"total":10,"direct":3,"nondirect":7},"Jul 25":{"total":9,"direct":7,"nondirect":2},"Aug 25":{"total":5,"direct":2,"nondirect":3}},"inq_conf":{"Unknown":{"total":2,"direct":2,"nondirect":0},"Apr 25":{"total":1,"direct":1,"nondirect":0},"Aug 25":{"total":1,"direct":0,"nondirect":1},"Oct 25":{"total":1,"direct":0,"nondirect":1}}},"Sep":{"leads_total":57,"leads_direct":25,"leads_nondirect":32,"prev_yr_leads":6,"prev_yr_d":3,"prev_yr_nd":3,"same_yr_leads":51,"same_yr_d":22,"same_yr_nd":29,"next_yr_leads":0,"conf_total":2,"conf_direct":1,"conf_nondirect":1,"inq_leads":{"Jul 24":{"total":1,"direct":0,"nondirect":1},"Sep 24":{"total":1,"direct":1,"nondirect":0},"Oct 24":{"total":1,"direct":1,"nondirect":0},"Dec 24":{"total":3,"direct":1,"nondirect":2},"Jan 25":{"total":5,"direct":2,"nondirect":3},"Feb 25":{"total":2,"direct":0,"nondirect":2},"Mar 25":{"total":5,"direct":1,"nondirect":4},"Apr 25":{"total":4,"direct":3,"nondirect":1},"May 25":{"total":5,"direct":3,"nondirect":2},"Jun 25":{"total":5,"direct":3,"nondirect":2},"Jul 25":{"total":6,"direct":3,"nondirect":3},"Aug 25":{"total":11,"direct":4,"nondirect":7},"Sep 25":{"total":8,"direct":3,"nondirect":5}},"inq_conf":{"Jun 25":{"total":1,"direct":1,"nondirect":0},"Sep 25":{"total":1,"direct":0,"nondirect":1}}},"Oct":{"leads_total":48,"leads_direct":27,"leads_nondirect":21,"prev_yr_leads":3,"prev_yr_d":3,"prev_yr_nd":0,"same_yr_leads":45,"same_yr_d":24,"same_yr_nd":21,"next_yr_leads":0,"conf_total":8,"conf_direct":6,"conf_nondirect":2,"inq_leads":{"Nov 24":{"total":2,"direct":2,"nondirect":0},"Dec 24":{"total":1,"direct":1,"nondirect":0},"Jan 25":{"total":5,"direct":3,"nondirect":2},"Feb 25":{"total":2,"direct":1,"nondirect":1},"Mar 25":{"total":4,"direct":3,"nondirect":1},"Apr 25":{"total":7,"direct":4,"nondirect":3},"May 25":{"total":1,"direct":0,"nondirect":1},"Jun 25":{"total":3,"direct":1,"nondirect":2},"Jul 25":{"total":7,"direct":5,"nondirect":2},"Aug 25":{"total":7,"direct":2,"nondirect":5},"Sep 25":{"total":5,"direct":2,"nondirect":3},"Oct 25":{"total":4,"direct":3,"nondirect":1}},"inq_conf":{"Sep 1":{"total":1,"direct":0,"nondirect":1},"Unknown":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":1,"direct":1,"nondirect":0},"Jul 25":{"total":1,"direct":1,"nondirect":0},"Aug 25":{"total":1,"direct":0,"nondirect":1},"Sep 25":{"total":1,"direct":1,"nondirect":0},"Oct 25":{"total":2,"direct":2,"nondirect":0}}},"Nov":{"leads_total":51,"leads_direct":30,"leads_nondirect":21,"prev_yr_leads":3,"prev_yr_d":3,"prev_yr_nd":0,"same_yr_leads":48,"same_yr_d":27,"same_yr_nd":21,"next_yr_leads":0,"conf_total":5,"conf_direct":3,"conf_nondirect":2,"inq_leads":{"Oct 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":1,"direct":1,"nondirect":0},"Dec 24":{"total":1,"direct":1,"nondirect":0},"Feb 25":{"total":3,"direct":2,"nondirect":1},"Mar 25":{"total":1,"direct":0,"nondirect":1},"Apr 25":{"total":1,"direct":0,"nondirect":1},"May 25":{"total":3,"direct":0,"nondirect":3},"Jun 25":{"total":1,"direct":1,"nondirect":0},"Jul 25":{"total":10,"direct":7,"nondirect":3},"Aug 25":{"total":8,"direct":5,"nondirect":3},"Sep 25":{"total":7,"direct":3,"nondirect":4},"Oct 25":{"total":11,"direct":7,"nondirect":4},"Nov 25":{"total":3,"direct":2,"nondirect":1}},"inq_conf":{"Oct 25":{"total":2,"direct":1,"nondirect":1},"Nov 25":{"total":3,"direct":2,"nondirect":1}}},"Dec":{"leads_total":47,"leads_direct":21,"leads_nondirect":26,"prev_yr_leads":4,"prev_yr_d":2,"prev_yr_nd":2,"same_yr_leads":42,"same_yr_d":18,"same_yr_nd":24,"next_yr_leads":1,"conf_total":3,"conf_direct":1,"conf_nondirect":2,"inq_leads":{"May 24":{"total":1,"direct":0,"nondirect":1},"Jun 24":{"total":1,"direct":0,"nondirect":1},"Sep 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":1,"direct":1,"nondirect":0},"Feb 25":{"total":4,"direct":4,"nondirect":0},"Mar 25":{"total":2,"direct":1,"nondirect":1},"Apr 25":{"total":2,"direct":1,"nondirect":1},"Jun 25":{"total":1,"direct":0,"nondirect":1},"Jul 25":{"total":3,"direct":1,"nondirect":2},"Aug 25":{"total":5,"direct":1,"nondirect":4},"Sep 25":{"total":3,"direct":2,"nondirect":1},"Oct 25":{"total":10,"direct":3,"nondirect":7},"Nov 25":{"total":7,"direct":4,"nondirect":3},"Dec 25":{"total":5,"direct":1,"nondirect":4},"Jan 26":{"total":1,"direct":1,"nondirect":0}},"inq_conf":{"Dec 25":{"total":3,"direct":1,"nondirect":2}}}},"2026":{"Jan":{"leads_total":35,"leads_direct":22,"leads_nondirect":13,"prev_yr_leads":32,"prev_yr_d":20,"prev_yr_nd":12,"same_yr_leads":3,"same_yr_d":2,"same_yr_nd":1,"next_yr_leads":0,"conf_total":2,"conf_direct":1,"conf_nondirect":1,"inq_leads":{"Oct 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":1,"direct":1,"nondirect":0},"Jan 25":{"total":1,"direct":0,"nondirect":1},"Feb 25":{"total":4,"direct":4,"nondirect":0},"Mar 25":{"total":4,"direct":2,"nondirect":2},"Apr 25":{"total":2,"direct":1,"nondirect":1},"May 25":{"total":2,"direct":1,"nondirect":1},"Jun 25":{"total":2,"direct":1,"nondirect":1},"Aug 25":{"total":4,"direct":2,"nondirect":2},"Oct 25":{"total":4,"direct":2,"nondirect":2},"Nov 25":{"total":5,"direct":3,"nondirect":2},"Dec 25":{"total":2,"direct":2,"nondirect":0},"Jan 26":{"total":3,"direct":2,"nondirect":1}},"inq_conf":{"Jan 26":{"total":2,"direct":1,"nondirect":1}}},"Feb":{"leads_total":34,"leads_direct":17,"leads_nondirect":17,"prev_yr_leads":24,"prev_yr_d":12,"prev_yr_nd":12,"same_yr_leads":10,"same_yr_d":5,"same_yr_nd":5,"next_yr_leads":0,"conf_total":5,"conf_direct":4,"conf_nondirect":1,"inq_leads":{"Nov 24":{"total":1,"direct":0,"nondirect":1},"Dec 24":{"total":2,"direct":2,"nondirect":0},"Jan 25":{"total":1,"direct":1,"nondirect":0},"Mar 25":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":3,"direct":2,"nondirect":1},"Jul 25":{"total":5,"direct":0,"nondirect":5},"Aug 25":{"total":1,"direct":1,"nondirect":0},"Sep 25":{"total":2,"direct":2,"nondirect":0},"Oct 25":{"total":1,"direct":0,"nondirect":1},"Nov 25":{"total":5,"direct":2,"nondirect":3},"Dec 25":{"total":2,"direct":1,"nondirect":1},"Jan 26":{"total":3,"direct":0,"nondirect":3},"Feb 26":{"total":6,"direct":4,"nondirect":2},"Apr 26":{"total":1,"direct":1,"nondirect":0}},"inq_conf":{"Feb 25":{"total":1,"direct":1,"nondirect":0},"Feb 26":{"total":4,"direct":3,"nondirect":1}}},"Mar":{"leads_total":22,"leads_direct":10,"leads_nondirect":12,"prev_yr_leads":14,"prev_yr_d":7,"prev_yr_nd":7,"same_yr_leads":8,"same_yr_d":3,"same_yr_nd":5,"next_yr_leads":0,"conf_total":0,"conf_direct":0,"conf_nondirect":0,"inq_leads":{"Jan 25":{"total":1,"direct":0,"nondirect":1},"Mar 25":{"total":1,"direct":0,"nondirect":1},"Apr 25":{"total":1,"direct":0,"nondirect":1},"May 25":{"total":1,"direct":0,"nondirect":1},"Jul 25":{"total":2,"direct":2,"nondirect":0},"Sep 25":{"total":4,"direct":3,"nondirect":1},"Oct 25":{"total":1,"direct":0,"nondirect":1},"Nov 25":{"total":1,"direct":1,"nondirect":0},"Dec 25":{"total":2,"direct":1,"nondirect":1},"Jan 26":{"total":4,"direct":3,"nondirect":1},"Feb 26":{"total":1,"direct":0,"nondirect":1},"Mar 26":{"total":3,"direct":0,"nondirect":3}},"inq_conf":{}},"Apr":{"leads_total":32,"leads_direct":12,"leads_nondirect":20,"prev_yr_leads":17,"prev_yr_d":9,"prev_yr_nd":8,"same_yr_leads":15,"same_yr_d":3,"same_yr_nd":12,"next_yr_leads":0,"conf_total":3,"conf_direct":0,"conf_nondirect":3,"inq_leads":{"Sep 24":{"total":1,"direct":1,"nondirect":0},"Nov 24":{"total":1,"direct":1,"nondirect":0},"Apr 25":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":1,"direct":0,"nondirect":1},"Jul 25":{"total":4,"direct":3,"nondirect":1},"Sep 25":{"total":1,"direct":1,"nondirect":0},"Oct 25":{"total":3,"direct":0,"nondirect":3},"Nov 25":{"total":2,"direct":1,"nondirect":1},"Dec 25":{"total":3,"direct":1,"nondirect":2},"Jan 26":{"total":6,"direct":2,"nondirect":4},"Mar 26":{"total":7,"direct":1,"nondirect":6},"Apr 26":{"total":1,"direct":0,"nondirect":1},"Dec 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{"Mar 26":{"total":1,"direct":0,"nondirect":1},"Apr 26":{"total":2,"direct":0,"nondirect":2}}},"May":{"leads_total":37,"leads_direct":14,"leads_nondirect":23,"prev_yr_leads":22,"prev_yr_d":12,"prev_yr_nd":10,"same_yr_leads":15,"same_yr_d":2,"same_yr_nd":13,"next_yr_leads":0,"conf_total":6,"conf_direct":3,"conf_nondirect":3,"inq_leads":{"Nov 24":{"total":1,"direct":0,"nondirect":1},"Jan 25":{"total":1,"direct":1,"nondirect":0},"Mar 25":{"total":1,"direct":0,"nondirect":1},"Apr 25":{"total":1,"direct":1,"nondirect":0},"May 25":{"total":2,"direct":2,"nondirect":0},"Aug 25":{"total":3,"direct":1,"nondirect":2},"Sep 25":{"total":3,"direct":2,"nondirect":1},"Oct 25":{"total":3,"direct":2,"nondirect":1},"Nov 25":{"total":3,"direct":1,"nondirect":2},"Dec 25":{"total":4,"direct":2,"nondirect":2},"Jan 26":{"total":3,"direct":0,"nondirect":3},"Feb 26":{"total":2,"direct":0,"nondirect":2},"Mar 26":{"total":2,"direct":0,"nondirect":2},"Apr 26":{"total":3,"direct":1,"nondirect":2},"May 26":{"total":4,"direct":1,"nondirect":3},"Jun 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{"Feb 26":{"total":2,"direct":1,"nondirect":1},"Mar 26":{"total":1,"direct":1,"nondirect":0},"Apr 26":{"total":2,"direct":1,"nondirect":1},"May 26":{"total":1,"direct":0,"nondirect":1}}},"Jun":{"leads_total":33,"leads_direct":15,"leads_nondirect":18,"prev_yr_leads":20,"prev_yr_d":13,"prev_yr_nd":7,"same_yr_leads":13,"same_yr_d":2,"same_yr_nd":11,"next_yr_leads":0,"conf_total":1,"conf_direct":0,"conf_nondirect":1,"inq_leads":{"Jan 25":{"total":1,"direct":1,"nondirect":0},"Mar 25":{"total":2,"direct":2,"nondirect":0},"Apr 25":{"total":3,"direct":1,"nondirect":2},"May 25":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":3,"direct":2,"nondirect":1},"Aug 25":{"total":2,"direct":2,"nondirect":0},"Sep 25":{"total":2,"direct":2,"nondirect":0},"Oct 25":{"total":2,"direct":1,"nondirect":1},"Nov 25":{"total":1,"direct":0,"nondirect":1},"Dec 25":{"total":3,"direct":1,"nondirect":2},"Jan 26":{"total":1,"direct":0,"nondirect":1},"Feb 26":{"total":1,"direct":0,"nondirect":1},"Mar 26":{"total":3,"direct":0,"nondirect":3},"Apr 26":{"total":2,"direct":0,"nondirect":2},"May 26":{"total":6,"direct":2,"nondirect":4}},"inq_conf":{"Unknown":{"total":1,"direct":0,"nondirect":1}}},"Jul":{"leads_total":33,"leads_direct":13,"leads_nondirect":20,"prev_yr_leads":20,"prev_yr_d":10,"prev_yr_nd":10,"same_yr_leads":13,"same_yr_d":3,"same_yr_nd":10,"next_yr_leads":0,"conf_total":4,"conf_direct":0,"conf_nondirect":4,"inq_leads":{"Mar 25":{"total":3,"direct":2,"nondirect":1},"Apr 25":{"total":1,"direct":0,"nondirect":1},"Jun 25":{"total":1,"direct":1,"nondirect":0},"Aug 25":{"total":2,"direct":2,"nondirect":0},"Sep 25":{"total":1,"direct":1,"nondirect":0},"Oct 25":{"total":7,"direct":3,"nondirect":4},"Nov 25":{"total":2,"direct":1,"nondirect":1},"Dec 25":{"total":3,"direct":0,"nondirect":3},"Feb 26":{"total":4,"direct":1,"nondirect":3},"Mar 26":{"total":3,"direct":1,"nondirect":2},"Apr 26":{"total":3,"direct":1,"nondirect":2},"May 26":{"total":2,"direct":0,"nondirect":2},"Dec 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{"Jan 26":{"total":1,"direct":0,"nondirect":1},"Feb 26":{"total":1,"direct":0,"nondirect":1},"Mar 26":{"total":1,"direct":0,"nondirect":1},"May 26":{"total":1,"direct":0,"nondirect":1}}},"Aug":{"leads_total":16,"leads_direct":8,"leads_nondirect":8,"prev_yr_leads":9,"prev_yr_d":6,"prev_yr_nd":3,"same_yr_leads":7,"same_yr_d":2,"same_yr_nd":5,"next_yr_leads":0,"conf_total":2,"conf_direct":1,"conf_nondirect":1,"inq_leads":{"Mar 25":{"total":1,"direct":1,"nondirect":0},"Sep 25":{"total":2,"direct":1,"nondirect":1},"Oct 25":{"total":2,"direct":2,"nondirect":0},"Nov 25":{"total":2,"direct":1,"nondirect":1},"Dec 25":{"total":2,"direct":1,"nondirect":1},"Feb 26":{"total":1,"direct":1,"nondirect":0},"Mar 26":{"total":3,"direct":0,"nondirect":3},"Apr 26":{"total":3,"direct":1,"nondirect":2}},"inq_conf":{"Jan 26":{"total":1,"direct":1,"nondirect":0},"Mar 26":{"total":1,"direct":0,"nondirect":1}}},"Sep":{"leads_total":12,"leads_direct":7,"leads_nondirect":5,"prev_yr_leads":8,"prev_yr_d":4,"prev_yr_nd":4,"same_yr_leads":4,"same_yr_d":3,"same_yr_nd":1,"next_yr_leads":0,"conf_total":0,"conf_direct":0,"conf_nondirect":0,"inq_leads":{"Aug 24":{"total":1,"direct":0,"nondirect":1},"May 25":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":1,"direct":1,"nondirect":0},"Aug 25":{"total":1,"direct":0,"nondirect":1},"Sep 25":{"total":1,"direct":1,"nondirect":0},"Oct 25":{"total":1,"direct":1,"nondirect":0},"Dec 25":{"total":2,"direct":0,"nondirect":2},"Jan 26":{"total":1,"direct":1,"nondirect":0},"Mar 26":{"total":2,"direct":2,"nondirect":0},"May 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{}},"Oct":{"leads_total":11,"leads_direct":9,"leads_nondirect":2,"prev_yr_leads":6,"prev_yr_d":5,"prev_yr_nd":1,"same_yr_leads":5,"same_yr_d":4,"same_yr_nd":1,"next_yr_leads":0,"conf_total":1,"conf_direct":1,"conf_nondirect":0,"inq_leads":{"Feb 25":{"total":1,"direct":1,"nondirect":0},"May 25":{"total":1,"direct":1,"nondirect":0},"Jun 25":{"total":1,"direct":1,"nondirect":0},"Oct 25":{"total":2,"direct":1,"nondirect":1},"Dec 25":{"total":1,"direct":1,"nondirect":0},"Mar 26":{"total":1,"direct":1,"nondirect":0},"Apr 26":{"total":4,"direct":3,"nondirect":1}},"inq_conf":{"Mar 26":{"total":1,"direct":1,"nondirect":0}}},"Nov":{"leads_total":3,"leads_direct":1,"leads_nondirect":2,"prev_yr_leads":2,"prev_yr_d":1,"prev_yr_nd":1,"same_yr_leads":1,"same_yr_d":0,"same_yr_nd":1,"next_yr_leads":0,"conf_total":0,"conf_direct":0,"conf_nondirect":0,"inq_leads":{"Sep 25":{"total":1,"direct":0,"nondirect":1},"Nov 25":{"total":1,"direct":1,"nondirect":0},"Apr 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{}},"Dec":{"leads_total":3,"leads_direct":2,"leads_nondirect":1,"prev_yr_leads":2,"prev_yr_d":2,"prev_yr_nd":0,"same_yr_leads":1,"same_yr_d":0,"same_yr_nd":1,"next_yr_leads":0,"conf_total":0,"conf_direct":0,"conf_nondirect":0,"inq_leads":{"Dec 25":{"total":2,"direct":2,"nondirect":0},"Feb 26":{"total":1,"direct":0,"nondirect":1}},"inq_conf":{}}}};
+
+let evY=2025, evM='May', lChart=null, cChart=null;
+
+function yrOf(lbl){const p=lbl.split(' ');return p.length>1?parseInt('20'+p[1]):0;}
+function yrTag(lbl,ey){const y=yrOf(lbl);return y<ey?'prev':y===ey?'same':'next';}
+function pill(lbl,ey){const t=yrTag(lbl,ey);return t==='prev'?'<span class="pill py">prev yr</span>':t==='same'?'<span class="pill sy">same yr</span>':'<span class="pill ny">next yr</span>';}
+
+function buildEM(){
+  const c=document.getElementById('em-btns');c.innerHTML='';
+  Object.keys(D[String(evY)]).forEach(m=>{
+    const b=document.createElement('button');
+    b.className='btn'+(m===evM?' on':'');
+    b.textContent=m;
+    b.onclick=()=>{evM=m;document.querySelectorAll('.em-row .btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');render();};
+    c.appendChild(b);
+  });
+}
+
+function render(){
+  const em=D[String(evY)][evM]; if(!em) return;
+  const cr=em.leads_total>0?Math.round(em.conf_total/em.leads_total*100)+'%':'—';
+  const dr=em.leads_direct>0?Math.round(em.conf_direct/em.leads_direct*100)+'%':'—';
+  const nr=em.leads_nondirect>0?Math.round(em.conf_nondirect/em.leads_nondirect*100)+'%':'—';
+
+  document.getElementById('s-cards').innerHTML=`
+    <div class="card"><div class="lb">Total leads</div><div class="vl">${em.leads_total}</div><div class="sb">${em.leads_direct}D · ${em.leads_nondirect}ND</div></div>
+    <div class="card"><div class="lb">Confirmed</div><div class="vl">${em.conf_total}</div><div class="sb">${cr} of leads</div></div>
+    <div class="card"><div class="lb">Direct confirmed</div><div class="vl">${em.conf_direct}</div><div class="sb">${dr} of direct leads</div></div>
+    <div class="card"><div class="lb">Non-direct confirmed</div><div class="vl">${em.conf_nondirect}</div><div class="sb">${nr} of ND leads</div></div>`;
+
+  document.getElementById('yr-split').innerHTML=`
+    <div class="ys prev">
+      <div class="lb">Leads from previous year</div>
+      <div class="row"><span class="num">${em.prev_yr_leads}</span><span class="sub">total</span></div>
+      <div class="row"><span style="font-size:11px;color:var(--color-text-secondary);">Direct: ${em.prev_yr_d} &nbsp;·&nbsp; Non-direct: ${em.prev_yr_nd}</span></div>
+    </div>
+    <div class="ys same">
+      <div class="lb">Leads from same year</div>
+      <div class="row"><span class="num">${em.same_yr_leads}</span><span class="sub">total</span></div>
+      <div class="row"><span style="font-size:11px;color:var(--color-text-secondary);">Direct: ${em.same_yr_d} &nbsp;·&nbsp; Non-direct: ${em.same_yr_nd}</span></div>
+    </div>`;
+
+  // LEADS CHART
+  const lKeys=Object.keys(em.inq_leads);
+  const ldD=lKeys.map(k=>{const t=yrTag(k,evY);return t==='prev'?em.inq_leads[k].direct:0;});
+  const lndD=lKeys.map(k=>{const t=yrTag(k,evY);return t==='prev'?em.inq_leads[k].nondirect:0;});
+  const ldS=lKeys.map(k=>{const t=yrTag(k,evY);return t==='same'?em.inq_leads[k].direct:0;});
+  const lndS=lKeys.map(k=>{const t=yrTag(k,evY);return t==='same'?em.inq_leads[k].nondirect:0;});
+  const lnxt=lKeys.map(k=>{const t=yrTag(k,evY);return t==='next'?em.inq_leads[k].total:0;});
+
+  if(lChart)lChart.destroy();
+  lChart=new Chart(document.getElementById('leads-chart').getContext('2d'),{
+    type:'bar',
+    data:{labels:lKeys,datasets:[
+      {label:'Direct prev',data:ldD,backgroundColor:'#BA7517',borderRadius:2,borderSkipped:false,stack:'s'},
+      {label:'ND prev',data:lndD,backgroundColor:'rgba(239,159,39,0.5)',borderRadius:2,borderSkipped:false,stack:'s'},
+      {label:'Direct same',data:ldS,backgroundColor:'#185FA5',borderRadius:2,borderSkipped:false,stack:'s'},
+      {label:'ND same',data:lndS,backgroundColor:'rgba(55,138,221,0.5)',borderRadius:2,borderSkipped:false,stack:'s'},
+      {label:'Next yr',data:lnxt,backgroundColor:'rgba(29,158,117,0.35)',borderRadius:2,borderSkipped:false,stack:'s'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{stacked:true,grid:{color:GC},ticks:{color:TX,font:{size:10},autoSkip:false,maxRotation:45}},y:{stacked:true,grid:{color:GC},ticks:{color:TX,font:{size:10}},beginAtZero:true}}}
+  });
+
+  // CONFIRMED CHART
+  const cKeys=Object.keys(em.inq_conf);
+  if(cKeys.length===0){
+    if(cChart)cChart.destroy();
+    document.getElementById('conf-chart').getContext('2d').clearRect(0,0,9999,9999);
+    cChart=null;
+    // show empty state
+    const ctx2=document.getElementById('conf-chart').getContext('2d');
+    ctx2.font='13px sans-serif';ctx2.fillStyle=TX;ctx2.textAlign='center';
+    ctx2.fillText('No confirmed bookings for this event month',document.getElementById('conf-chart').width/2,80);
+  } else {
+    if(cChart)cChart.destroy();
+    cChart=new Chart(document.getElementById('conf-chart').getContext('2d'),{
+      type:'bar',
+      data:{labels:cKeys,datasets:[
+        {label:'Direct',data:cKeys.map(k=>em.inq_conf[k].direct),backgroundColor:'#185FA5',borderRadius:3,borderSkipped:false,stack:'c'},
+        {label:'Non-direct',data:cKeys.map(k=>em.inq_conf[k].nondirect),backgroundColor:'rgba(55,138,221,0.5)',borderRadius:3,borderSkipped:false,stack:'c'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+        scales:{x:{stacked:true,grid:{color:GC},ticks:{color:TX,font:{size:10},autoSkip:false,maxRotation:45}},y:{stacked:true,grid:{color:GC},ticks:{color:TX,font:{size:10}},beginAtZero:true}}}
+    });
+  }
+
+  // TABLE — merge leads + conf keys
+  const allKeys=[...new Set([...lKeys,...cKeys])];
+  let rows='';
+  allKeys.forEach(k=>{
+    const l=em.inq_leads[k]||{total:0,direct:0,nondirect:0};
+    const c=em.inq_conf[k]||{total:0,direct:0,nondirect:0};
+    const cv=l.total>0?Math.round(c.total/l.total*100)+'%':'—';
+    rows+=`<tr>
+      <td>${k.split(' ')[0]}</td>
+      <td>${pill(k,evY)}</td>
+      <td>${l.direct||'<span class="dim">0</span>'}</td>
+      <td>${l.nondirect||'<span class="dim">0</span>'}</td>
+      <td>${l.total||'<span class="dim">0</span>'}</td>
+      <td>${c.direct>0?'<span class="green">'+c.direct+'</span>':'<span class="dim">0</span>'}</td>
+      <td>${c.nondirect>0?'<span class="green">'+c.nondirect+'</span>':'<span class="dim">0</span>'}</td>
+      <td>${c.total>0?'<span class="green">'+c.total+'</span>':'<span class="dim">0</span>'}</td>
+    </tr>`;
+  });
+  rows+=`<tr class="tr">
+    <td colspan="2">Total</td>
+    <td>${em.leads_direct}</td><td>${em.leads_nondirect}</td><td>${em.leads_total}</td>
+    <td class="green">${em.conf_direct}</td><td class="green">${em.conf_nondirect}</td><td class="green">${em.conf_total}</td>
+  </tr>`;
+  document.getElementById('tbl-body').innerHTML=rows;
+}
+
+function setY(y,btn){
+  evY=y;
+  document.querySelectorAll('.top .btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const keys=Object.keys(D[String(y)]);
+  if(!keys.includes(evM))evM=keys[0];
+  buildEM();render();
+}
+
+setTimeout(()=>{buildEM();render();},100);
+</script>

@@ -1,0 +1,341 @@
+
+<h2 class="sr-only">Shivanna Sales Performance Dashboard 2026 — revenue, target gap, tentative pipeline</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.dash{font-family:inherit;padding:.75rem 0;}
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1.25rem;}
+.kpi{border-radius:10px;padding:12px 14px;}
+.kpi.target{background:#0C447C;color:#fff;}
+.kpi.achieved{background:#085041;color:#fff;}
+.kpi.gap{background:#791F1F;color:#fff;}
+.kpi.pipeline{background:#3C3489;color:#fff;}
+.kpi.avg{background:var(--color-background-secondary);color:var(--color-text-primary);}
+.kpi .lb{font-size:10px;opacity:.75;margin-bottom:4px;letter-spacing:.03em;text-transform:uppercase;}
+.kpi .vl{font-size:18px;font-weight:600;line-height:1.1;}
+.kpi .sb{font-size:10px;opacity:.65;margin-top:3px;}
+.prog-wrap{margin-bottom:1.25rem;background:var(--color-background-secondary);border-radius:10px;padding:14px 16px;}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;}
+.prog-track{height:10px;background:rgba(128,128,128,0.15);border-radius:99px;overflow:hidden;margin-bottom:6px;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#1D9E75,#5DCAA5);}
+.prog-markers{display:flex;justify-content:space-between;font-size:9px;color:var(--color-text-tertiary);}
+.tabs{display:flex;gap:5px;margin-bottom:1rem;flex-wrap:wrap;}
+.tab{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 12px;font-size:11px;cursor:pointer;background:transparent;color:var(--color-text-secondary);}
+.tab.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary);}
+.pg{display:none;}.pg.on{display:block;}
+.tbl-wrap{overflow-x:auto;margin-bottom:.5rem;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead tr{border-bottom:1.5px solid var(--color-border-secondary);}
+th{padding:6px 8px;text-align:center;font-weight:500;color:var(--color-text-secondary);font-size:10px;white-space:nowrap;}
+th.left{text-align:left;}
+th.grp{font-size:9px;letter-spacing:.04em;color:var(--color-text-tertiary);text-transform:uppercase;}
+td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:center;font-size:11px;color:var(--color-text-primary);white-space:nowrap;}
+td.left{text-align:left;font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.tr td{font-weight:600;border-top:1.5px solid var(--color-border-secondary);background:var(--color-background-secondary);}
+.green{color:#1D9E75;font-weight:500;}
+.red{color:#A32D2D;font-weight:500;}
+.amber{color:#BA7517;font-weight:500;}
+.dim{color:var(--color-text-tertiary);}
+.sep{border-left:1px solid var(--color-border-tertiary);}
+.sep2{border-left:2px solid var(--color-border-secondary);}
+.bgc{background:rgba(29,158,117,0.05);}
+.bgt{background:rgba(127,119,221,0.05);}
+.bgg{background:rgba(239,159,39,0.05);}
+.now{background:rgba(255,140,0,0.06);}
+.past{opacity:.7;}
+.pill{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:500;}
+.pc{background:#E1F5EE;color:#085041;}
+.pt{background:#EEEDFE;color:#3C3489;}
+.pnow{background:#FAEEDA;color:#633806;}
+.pnl{background:#FCEBEB;color:#791F1F;}
+.div{height:0.5px;background:var(--color-border-tertiary);margin:1.25rem 0;}
+.slabel{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:.5rem;}
+.cw{position:relative;width:100%;height:230px;}
+.cw-s{position:relative;width:100%;height:200px;}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+.leg{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--color-text-secondary);margin-top:5px;}
+.ls{display:flex;align-items:center;gap:3px;}
+.lsq{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+</style>
+
+<div class="dash">
+
+<div class="kpi-strip">
+  <div class="kpi target"><div class="lb">2026 Target</div><div class="vl">Rp 12.75 B</div><div class="sb">Full year</div></div>
+  <div class="kpi achieved"><div class="lb">Confirmed YTD</div><div class="vl">Rp 2.43 B</div><div class="sb">24 bookings · 19.1%</div></div>
+  <div class="kpi gap"><div class="lb">Gap to Target</div><div class="vl">Rp 10.32 B</div><div class="sb">7 months remaining</div></div>
+  <div class="kpi pipeline"><div class="lb">Tentative Pipeline</div><div class="vl">Rp 9.87 B</div><div class="sb">75 tentative leads</div></div>
+  <div class="kpi avg"><div class="lb">Avg per Booking</div><div class="vl">Rp 101 M</div><div class="sb">~15 bookings/month needed</div></div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-label"><span>Progress vs 2026 Target</span><span style="font-weight:500;color:var(--color-text-primary);">19.1% achieved</span></div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-markers"><span>0</span><span>25%</span><span>50%</span><span>75%</span><span>100% = Rp 12.75 B</span></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="goTab('revenue',this)">Revenue by Month</button>
+  <button class="tab" onclick="goTab('gap',this)">Gap &amp; Pipeline</button>
+  <button class="tab" onclick="goTab('channel',this)">Direct vs Agent</button>
+  <button class="tab" onclick="goTab('compare',this)">2025 vs 2026</button>
+</div>
+
+<!-- REVENUE BY MONTH -->
+<div id="pg-revenue" class="pg on">
+  <div class="tbl-wrap"><table>
+    <thead>
+      <tr>
+        <th class="left" rowspan="2">Month</th>
+        <th colspan="4" class="grp bgc sep2">2026 CONFIRMED</th>
+        <th colspan="2" class="grp bgt sep2">TENTATIVE PIPELINE</th>
+      </tr>
+      <tr>
+        <th class="bgc sep2">Bookings</th><th class="bgc">Revenue</th><th class="bgc">Direct</th><th class="bgc">Agent</th>
+        <th class="bgt sep2">Leads</th><th class="bgt">Pot. Value</th>
+      </tr>
+    </thead>
+    <tbody id="rev-tbody"></tbody>
+  </table></div>
+  <p style="font-size:10px;color:var(--color-text-tertiary);margin-top:.5rem;">Tentative pipeline shown for upcoming months only (Jun–Dec).</p>
+</div>
+
+<!-- GAP & PIPELINE -->
+<div id="pg-gap" class="pg">
+  <div class="tbl-wrap"><table>
+    <thead>
+      <tr>
+        <th class="left">Month</th>
+        <th>Confirmed Rev</th>
+        <th class="sep">Tentative Leads</th>
+        <th>Pot. Value</th>
+        <th class="sep">Target/month</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="gap-tbody"></tbody>
+  </table></div>
+  <div class="div"></div>
+  <p class="slabel">Revenue gap — confirmed vs tentative vs remaining</p>
+  <div class="cw"><canvas id="c-gap" role="img" aria-label="Revenue gap chart by month"></canvas></div>
+  <div class="leg">
+    <span class="ls"><span class="lsq" style="background:#1D9E75"></span>Confirmed</span>
+    <span class="ls"><span class="lsq" style="background:#7F77DD;opacity:.7"></span>Tentative potential</span>
+    <span class="ls"><span class="lsq" style="background:#E24B4A;opacity:.3"></span>Remaining gap</span>
+  </div>
+</div>
+
+<!-- DIRECT VS AGENT -->
+<div id="pg-channel" class="pg">
+  <div class="tbl-wrap"><table>
+    <thead>
+      <tr>
+        <th class="left">Month</th>
+        <th colspan="2" class="grp bgc sep2">DIRECT</th>
+        <th colspan="2" class="grp bgg sep2">AGENT</th>
+        <th class="sep2">Total Rev</th>
+        <th>Direct %</th>
+      </tr>
+      <tr>
+        <th class="left"></th>
+        <th class="bgc sep2">Bookings</th><th class="bgc">Revenue</th>
+        <th class="bgg sep2">Bookings</th><th class="bgg">Revenue</th>
+        <th class="sep2"></th><th></th>
+      </tr>
+    </thead>
+    <tbody id="ch-tbody"></tbody>
+  </table></div>
+  <div class="div"></div>
+  <div class="chart-grid">
+    <div>
+      <p style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.3rem;">Bookings by channel</p>
+      <div class="cw-s"><canvas id="c-ch-book" role="img" aria-label="Bookings by channel 2026"></canvas></div>
+      <div class="leg">
+        <span class="ls"><span class="lsq" style="background:#185FA5"></span>Direct</span>
+        <span class="ls"><span class="lsq" style="background:#EF9F27"></span>Agent</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.3rem;">Revenue by channel</p>
+      <div class="cw-s"><canvas id="c-ch-rev" role="img" aria-label="Revenue by channel 2026"></canvas></div>
+      <div class="leg">
+        <span class="ls"><span class="lsq" style="background:#185FA5"></span>Direct</span>
+        <span class="ls"><span class="lsq" style="background:#EF9F27"></span>Agent</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2025 VS 2026 -->
+<div id="pg-compare" class="pg">
+  <div class="tbl-wrap"><table>
+    <thead>
+      <tr>
+        <th class="left">Month</th>
+        <th colspan="2" class="grp bgc sep2">2025</th>
+        <th colspan="2" class="grp bgt sep2">2026</th>
+        <th colspan="2" class="grp bgg sep2">Growth</th>
+      </tr>
+      <tr>
+        <th class="left"></th>
+        <th class="bgc sep2">Bookings</th><th class="bgc">Revenue</th>
+        <th class="bgt sep2">Bookings</th><th class="bgt">Revenue</th>
+        <th class="bgg sep2">Bookings</th><th class="bgg">Revenue</th>
+      </tr>
+    </thead>
+    <tbody id="cmp-tbody"></tbody>
+  </table></div>
+  <div class="div"></div>
+  <p class="slabel">Revenue per month — 2025 vs 2026</p>
+  <div class="cw"><canvas id="c-cmp" role="img" aria-label="Revenue 2025 vs 2026 per month"></canvas></div>
+  <div class="leg">
+    <span class="ls"><span class="lsq" style="background:#378ADD"></span>2025</span>
+    <span class="ls"><span class="lsq" style="background:#7F77DD"></span>2026 confirmed</span>
+    <span class="ls"><span class="lsq" style="background:#7F77DD;opacity:.3"></span>2026 tentative potential</span>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const GC='rgba(128,128,128,0.12)',TX='#888';
+const TARGET=12750000000, CONF_YTD=2433195500, NOW=4; // May = index 4
+
+const D={
+'2025':{Jan:{b:0,gt:0,db:0,ab:0,dr:0,ar:0},Feb:{b:5,gt:847662320,db:0,ab:5,dr:0,ar:847662320},Mar:{b:2,gt:251668000,db:1,ab:1,dr:125208000,ar:126460000},Apr:{b:5,gt:500150305,db:3,ab:2,dr:296350305,ar:203800000},May:{b:4,gt:470147270,db:3,ab:1,dr:359577270,ar:110570000},Jun:{b:5,gt:584321000,db:2,ab:3,dr:234021000,ar:350300000},Jul:{b:7,gt:709050000,db:5,ab:2,dr:546550000,ar:162500000},Aug:{b:5,gt:893373000,db:3,ab:2,dr:519900000,ar:373473000},Sep:{b:2,gt:195500000,db:1,ab:1,dr:96800000,ar:98700000},Oct:{b:8,gt:661050000,db:6,ab:2,dr:530950000,ar:130100000},Nov:{b:5,gt:460443000,db:3,ab:2,dr:226700000,ar:233743000},Dec:{b:3,gt:218686600,db:1,ab:2,dr:87486600,ar:131200000}},
+'2026':{Jan:{b:2,gt:167300000,db:1,ab:1,dr:65000000,ar:102300000,tent:0,tv:0},Feb:{b:5,gt:325260000,db:4,ab:1,dr:215260000,ar:110000000,tent:1,tv:83100000},Mar:{b:0,gt:0,db:0,ab:0,dr:0,ar:0,tent:4,tv:497100000},Apr:{b:3,gt:275489500,db:0,ab:3,dr:0,ar:275489500,tent:13,tv:1560850000},May:{b:6,gt:615077000,db:3,ab:3,dr:306237000,ar:308840000,tent:13,tv:1254120000},Jun:{b:1,gt:125000000,db:0,ab:1,dr:0,ar:125000000,tent:22,tv:2563447500},Jul:{b:4,gt:625319000,db:0,ab:4,dr:0,ar:625319000,tent:12,tv:1573992500},Aug:{b:2,gt:186500000,db:1,ab:1,dr:61000000,ar:125500000,tent:13,tv:1467300070},Sep:{b:0,gt:0,db:0,ab:0,dr:0,ar:0,tent:11,tv:1768825000},Oct:{b:1,gt:113250000,db:1,ab:0,dr:113250000,ar:0,tent:11,tv:1521093500},Nov:{b:0,gt:0,db:0,ab:0,dr:0,ar:0,tent:3,tv:619392500},Dec:{b:0,gt:0,db:0,ab:0,dr:0,ar:0,tent:3,tv:354999000}}
+};
+
+function fmt(n){if(n===0)return '<span class="dim">—</span>';if(n>=1000000000)return 'Rp '+(n/1000000000).toFixed(2)+' B';return 'Rp '+(n/1000000).toFixed(0)+' M';}
+function fmtRaw(n){if(n>=1000000000)return 'Rp '+(n/1000000000).toFixed(2)+' B';return 'Rp '+(n/1000000).toFixed(0)+' M';}
+function growth(a,b){if(a===0&&b===0)return '<span class="dim">—</span>';if(a===0)return b>0?'<span class="green">new</span>':'<span class="dim">—</span>';const g=Math.round((b-a)/a*100);if(g>0)return '<span class="green">▲'+g+'%</span>';if(g<0)return '<span class="red">▼'+Math.abs(g)+'%</span>';return '<span class="dim">0%</span>';}
+
+// REVENUE TABLE
+function buildRevTable(){
+  const d=D['2026']; let rows='',tb=0,tgt=0,ttent=0,ttv=0;
+  MN.forEach((m,i)=>{
+    const r=d[m]; const past=i<NOW; const isNow=i===NOW;
+    tb+=r.b; tgt+=r.gt;
+    if(!past){ttent+=r.tent;ttv+=r.tv;}
+    const tentCell = past
+      ? '<td class="sep2 dim">—</td><td class="dim">—</td>'
+      : `<td class="sep2">${r.tent>0?r.tent:'<span class="dim">0</span>'}</td><td>${r.tv>0?'<span class="amber">'+fmt(r.tv)+'</span>':'<span class="dim">—</span>'}</td>`;
+    rows+=`<tr${isNow?' class="now"':past?' class="past"':''}>
+      <td class="left">${m} 2026${isNow?' <span class="pill pnow">current</span>':past?' <span class="pill pc">done</span>':''}</td>
+      <td class="sep2">${r.b>0?r.b:'<span class="dim">0</span>'}</td>
+      <td>${r.gt>0?'<span class="green">'+fmt(r.gt)+'</span>':'<span class="dim">—</span>'}</td>
+      <td>${r.db>0?r.db:'<span class="dim">—</span>'}</td>
+      <td>${r.ab>0?r.ab:'<span class="dim">—</span>'}</td>
+      ${tentCell}
+    </tr>`;
+  });
+  rows+=`<tr class="tr"><td class="left">Total</td><td class="sep2">${tb}</td><td class="green">${fmtRaw(tgt)}</td><td colspan="2"></td><td class="sep2">${ttent}</td><td class="amber">${fmtRaw(ttv)}</td></tr>`;
+  document.getElementById('rev-tbody').innerHTML=rows;
+}
+
+// GAP TABLE
+function buildGapTable(){
+  const d=D['2026'], tpm=Math.round(TARGET/12); let rows='';
+  MN.forEach((m,i)=>{
+    const r=d[m]; const past=i<NOW; const isNow=i===NOW;
+    if(past){
+      rows+=`<tr class="past"><td class="left">${m} <span class="pill pc">done</span></td><td>${r.gt>0?'<span class="green">'+fmt(r.gt)+'</span>':'<span class="dim">—</span>'}</td><td class="sep dim">—</td><td class="dim">—</td><td class="sep dim">—</td><td><span class="pill pc">closed</span></td></tr>`;
+      return;
+    }
+    const status = r.tent>0 && r.tv>0 ? '<span class="pill pt">pipeline open</span>' : '<span class="pill pnl">needs leads</span>';
+    rows+=`<tr${isNow?' class="now"':''}>
+      <td class="left">${m} 2026${isNow?' <span class="pill pnow">current</span>':''}</td>
+      <td>${r.gt>0?'<span class="green">'+fmt(r.gt)+'</span>':'<span class="dim">—</span>'}</td>
+      <td class="sep">${r.tent>0?r.tent:'<span class="dim">0</span>'}</td>
+      <td>${r.tv>0?'<span class="amber">'+fmt(r.tv)+'</span>':'<span class="dim">—</span>'}</td>
+      <td class="sep">${fmtRaw(tpm)}</td>
+      <td>${status}</td>
+    </tr>`;
+  });
+  const tent_remaining=MN.slice(NOW).reduce((s,m)=>s+D['2026'][m].tv,0);
+  rows+=`<tr class="tr"><td class="left">Gap remaining</td><td class="red">${fmtRaw(TARGET-CONF_YTD)}</td><td class="sep"></td><td class="amber">${fmtRaw(tent_remaining)}</td><td class="sep"></td><td></td></tr>`;
+  document.getElementById('gap-tbody').innerHTML=rows;
+}
+
+// CHANNEL TABLE
+function buildChannelTable(){
+  const d=D['2026']; let rows='',tdb=0,tab=0,tdr=0,tar=0;
+  MN.forEach((m,i)=>{
+    const r=d[m]; if(r.b===0)return;
+    tdb+=r.db;tab+=r.ab;tdr+=r.dr;tar+=r.ar;
+    const dpct=r.gt>0?Math.round(r.dr/r.gt*100):0;
+    rows+=`<tr${i<NOW?' class="past"':''}>
+      <td class="left">${m}${i<NOW?' <span class="pill pc">done</span>':i===NOW?' <span class="pill pnow">current</span>':''}</td>
+      <td class="sep2">${r.db>0?r.db:'<span class="dim">—</span>'}</td><td>${r.dr>0?'<span class="green">'+fmt(r.dr)+'</span>':'<span class="dim">—</span>'}</td>
+      <td class="sep2">${r.ab>0?r.ab:'<span class="dim">—</span>'}</td><td>${r.ar>0?'<span class="amber">'+fmt(r.ar)+'</span>':'<span class="dim">—</span>'}</td>
+      <td class="sep2">${fmt(r.gt)}</td>
+      <td>${dpct>0?dpct+'%':'<span class="dim">—</span>'}</td>
+    </tr>`;
+  });
+  const tot=tdr+tar;
+  rows+=`<tr class="tr"><td class="left">Total</td><td class="sep2">${tdb}</td><td class="green">${fmtRaw(tdr)}</td><td class="sep2">${tab}</td><td class="amber">${fmtRaw(tar)}</td><td class="sep2">${fmtRaw(tot)}</td><td>${tot>0?Math.round(tdr/tot*100)+'%':'—'}</td></tr>`;
+  document.getElementById('ch-tbody').innerHTML=rows;
+}
+
+// COMPARE TABLE
+function buildCmpTable(){
+  const d25=D['2025'],d26=D['2026']; let rows='',t25=0,t26=0,tb25=0,tb26=0;
+  MN.forEach((m,i)=>{
+    const r25=d25[m],r26=d26[m];
+    t25+=r25.gt;t26+=r26.gt;tb25+=r25.b;tb26+=r26.b;
+    rows+=`<tr${i<NOW?' class="past"':i===NOW?' class="now"':''}>
+      <td class="left">${m}${i===NOW?' <span class="pill pnow">current</span>':i<NOW?' <span class="pill pc">done</span>':''}</td>
+      <td class="sep2">${r25.b>0?r25.b:'<span class="dim">0</span>'}</td><td>${r25.gt>0?fmt(r25.gt):'<span class="dim">—</span>'}</td>
+      <td class="sep2">${r26.b>0?r26.b:'<span class="dim">0</span>'}</td><td>${r26.gt>0?'<span class="green">'+fmt(r26.gt)+'</span>':'<span class="dim">—</span>'}</td>
+      <td class="sep2">${growth(r25.b,r26.b)}</td><td>${growth(r25.gt,r26.gt)}</td>
+    </tr>`;
+  });
+  rows+=`<tr class="tr"><td class="left">Total</td><td class="sep2">${tb25}</td><td>${fmtRaw(t25)}</td><td class="sep2">${tb26}</td><td class="green">${fmtRaw(t26)}</td><td class="sep2">${growth(tb25,tb26)}</td><td>${growth(t25,t26)}</td></tr>`;
+  document.getElementById('cmp-tbody').innerHTML=rows;
+}
+
+const charts={};
+function mkBar(id,labels,ds){
+  if(charts[id])charts[id].destroy();
+  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:i=>' '+i.dataset.label+': Rp '+(i.raw/1000000).toFixed(0)+' M'}}},scales:{x:{grid:{color:GC},ticks:{color:TX,font:{size:10},autoSkip:false,maxRotation:0}},y:{grid:{color:GC},ticks:{color:TX,font:{size:10},callback:v=>v>=1000000000?(v/1000000000).toFixed(1)+'B':(v/1000000).toFixed(0)+'M'},beginAtZero:true}}};
+  charts[id]=new Chart(document.getElementById(id).getContext('2d'),{type:'bar',data:{labels,datasets:ds},options:opts});
+}
+function mkBarSimple(id,labels,ds){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id).getContext('2d'),{type:'bar',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{grid:{color:GC},ticks:{color:TX,font:{size:10},autoSkip:false,maxRotation:0}},y:{grid:{color:GC},ticks:{color:TX,font:{size:10}},beginAtZero:true}}}});
+}
+
+function buildCharts(){
+  const d26=D['2026'],d25=D['2025'];
+  const tpm=TARGET/12;
+  mkBar('c-gap',MN,[
+    {label:'Confirmed',data:MN.map(m=>d26[m].gt),backgroundColor:'rgba(29,158,117,0.85)',borderRadius:3,borderSkipped:false,stack:'s'},
+    {label:'Tentative potential',data:MN.map((m,i)=>i>=NOW?d26[m].tv:0),backgroundColor:'rgba(127,119,221,0.5)',borderRadius:3,borderSkipped:false,stack:'s'},
+    {label:'Gap',data:MN.map((m,i)=>{if(i<NOW)return 0;const rem=tpm-d26[m].gt-d26[m].tv;return Math.max(0,rem);}),backgroundColor:'rgba(226,75,74,0.2)',borderRadius:3,borderSkipped:false,stack:'s'}
+  ]);
+  mkBarSimple('c-ch-book',MN,[
+    {label:'Direct',data:MN.map(m=>d26[m].db),backgroundColor:'rgba(24,95,165,0.8)',borderRadius:3,borderSkipped:false},
+    {label:'Agent',data:MN.map(m=>d26[m].ab),backgroundColor:'rgba(239,159,39,0.8)',borderRadius:3,borderSkipped:false}
+  ]);
+  mkBar('c-ch-rev',MN,[
+    {label:'Direct',data:MN.map(m=>d26[m].dr),backgroundColor:'rgba(24,95,165,0.8)',borderRadius:3,borderSkipped:false},
+    {label:'Agent',data:MN.map(m=>d26[m].ar),backgroundColor:'rgba(239,159,39,0.8)',borderRadius:3,borderSkipped:false}
+  ]);
+  mkBar('c-cmp',MN,[
+    {label:'2025',data:MN.map(m=>d25[m].gt),backgroundColor:'rgba(55,138,221,0.65)',borderRadius:3,borderSkipped:false},
+    {label:'2026 confirmed',data:MN.map(m=>d26[m].gt),backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3,borderSkipped:false},
+    {label:'2026 tentative',data:MN.map((m,i)=>i>=NOW?d26[m].tv:0),backgroundColor:'rgba(127,119,221,0.25)',borderRadius:3,borderSkipped:false}
+  ]);
+}
+
+function goTab(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');btn.classList.add('on');
+}
+
+buildRevTable();buildGapTable();buildChannelTable();buildCmpTable();
+setTimeout(()=>{document.getElementById('prog-fill').style.width='19.1%';buildCharts();},200);
+</script>
